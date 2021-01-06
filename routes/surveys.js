@@ -1,7 +1,10 @@
 var CONFIG = require('../config-prod.json');
 
-const function convertFieldsToNumeric(doc) {
-    //try {
+function convertFieldsToNumeric(doc) {
+    var isPlainObject = function (obj) {
+      return Object.prototype.toString.call(obj) === '[object Object]';
+    };
+
     function isNumeric(str) {
       if (typeof str != "string") return false // we only process strings!  
       return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
@@ -10,8 +13,8 @@ const function convertFieldsToNumeric(doc) {
 
     const iterate = (obj) => {
         Object.keys(obj).forEach(key => {
-          if (isNumeric(obj[key])) {
-              obj[key] = parseFloat(obj[key]);
+          if ((key.indexOf("question") >= 0) && isPlainObject(obj[key]) && isNumeric(obj[key].score_value)) {
+              obj[key].score_value = parseFloat(obj[key].score_value);
           }
         }) 
     }
@@ -37,8 +40,7 @@ const surveyRoutes = (app, dbCollection) => {
         res.send("No project Id is given in the object");
       } else {
         //qualtrics sends scores as strings
-        if (req.body.scores)
-          convertFieldsToNumeric(req.body.scores);
+        convertFieldsToNumeric(req.body);
         dbCollection.updateOne({"name":req.body.projectId},{"$push":{"survey_responses":req.body}});
         res.send("Survey object created") 
       }
