@@ -38,8 +38,8 @@ loginApiKey(realmApiKey).then(user => {
 	// this is where we'll handle our various routes from
 	const routes = require('./routes/routes.js')(app, dbCollection);
 
-	// finally, launch our server on port 3001.
-	const server = app.listen(3001, () => {
+	// finally, launch our server on port 8080.
+	const server = app.listen(8080, () => {
 	  console.log('listening on port %s...', server.address().port);
 	});
 
