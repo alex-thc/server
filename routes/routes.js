@@ -1,7 +1,7 @@
 // load up our shiny new route for surveys
 const surveyRoutes = require('./surveys');
 
-const appRouter = (app, fs) => {
+const appRouter = (app, dbCollection) => {
   // we've added in a default route here that handles empty routes
   // at the base API url
   app.get('/', (req, res) => {
@@ -9,7 +9,7 @@ const appRouter = (app, fs) => {
   });
 
   // run our survey route module here to complete the wire up
-  surveyRoutes(app, fs);
+  surveyRoutes(app, dbCollection);
 };
 
 // this line is unchanged
