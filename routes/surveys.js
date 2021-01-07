@@ -24,6 +24,9 @@ function processQuestionsData(doc) {
     }
     iterate(doc);
     doc.questions = questions;
+
+    if (doc.date)
+      doc.date = new Date(doc.date);
     // } catch (err) {
     //   console.log(err)
     //   console.log(JSON.stringify(doc))
