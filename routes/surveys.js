@@ -14,7 +14,7 @@ function notifyHTMLBody(projectName, name, survey_response) {
     </div>`;
 }
 
-function getPMContactInfo(proj, userdataCol) {
+async function getPMContactInfo(proj, userdataCol) {
   let pm = await col_users.findOne({sf_names : proj.project_manager});
   if (! pm) {
     console.log(`We don't have data on the PM (${proj.project_manager}) for ${proj.name}`)
@@ -24,7 +24,7 @@ function getPMContactInfo(proj, userdataCol) {
   return {name:proj.project_manager, email: pm._id}
 }
 
-function getOwnerContactInfo(proj, userdataCol) {
+async function getOwnerContactInfo(proj, userdataCol) {
   let owner = await col_users.findOne({sf_names : proj.owner});
   if (! owner) {
     console.log(`We don't have data on the owner (${proj.owner}) for ${proj.name}`)
@@ -35,8 +35,8 @@ function getOwnerContactInfo(proj, userdataCol) {
 }
 
 async function notifyPM(project_doc, survey_response, user, userdataCol) {
-  const pm_contact_info = getPMContactInfo(project_doc, userdataCol);
-  const owner_contact_info = getOwnerContactInfo(project_doc, userdataCol);
+  const pm_contact_info = await getPMContactInfo(project_doc, userdataCol);
+  const owner_contact_info = await getOwnerContactInfo(project_doc, userdataCol);
 
   if (!pm_contact_info) {
     console.log("Ignoring");
