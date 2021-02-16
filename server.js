@@ -36,7 +36,7 @@ loginApiKey(realmApiKey).then(user => {
       .collection('psproject');
 
 	// this is where we'll handle our various routes from
-	const routes = require('./routes/routes.js')(app, dbCollection);
+	const routes = require('./routes/routes.js')(app, dbCollection, user);
 
 	// finally, launch our server on port 8080.
 	const server = app.listen(8080, () => {

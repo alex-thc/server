@@ -1,5 +1,40 @@
 var CONFIG = require('../config-prod.json');
 
+function notifyHTMLBody(projectName, name, survey_response) {
+  return `
+      <div>
+      Hi ${name},
+      <br/><br/>
+      We just received a survey response for the following PS Project: ${projectName}! See below for the details.
+      <br/>
+      ${JSON.stringify(survey_response)}
+      <br/> <br/>
+      MongoDB Professional Services
+      <br/>
+    </div>`;
+}
+
+function getPMContactInfo(project_doc, user) {
+  //TODO
+  return {name:"Bob Marley", email: "alex@mongodb.com"}
+}
+
+async function notifyPM(project_doc, survey_response, user) {
+  const pm_contact_info = getPMContactInfo(project_doc, user);
+
+  const emailParams = {
+    origEmail: "alex@mongodb.com",
+    toEmail: pm_contact_info.email, 
+    subject: "Survey response received for " + project_doc.name,
+    html: notifyHTMLBody(project_doc.name, pm_contact_info.name, survey_response)
+  };
+
+  await user.callFunction(
+                'sendMail',
+                emailParams,
+            );
+}
+
 function processQuestionsData(doc) {
     var isPlainObject = function (obj) {
       return Object.prototype.toString.call(obj) === '[object Object]';
@@ -35,7 +70,7 @@ function processQuestionsData(doc) {
     return doc
   }
 
-const surveyRoutes = (app, dbCollection) => {
+const surveyRoutes = (app, dbCollection, user) => {
 
   // CREATE
   app.post('/surveys', (req, res) => {
@@ -50,6 +85,7 @@ const surveyRoutes = (app, dbCollection) => {
         //qualtrics sends scores as strings
         processQuestionsData(req.body);
         dbCollection.updateOne({"name":req.body.projectId},{"$push":{"survey_responses":req.body}});
+        dbCollection.findOne({"name":req.body.projectId}).then((doc) => notifyPM(doc, req.body, user))
         res.send("Survey object created") 
       }
     } else {
