@@ -15,7 +15,7 @@ function notifyHTMLBody(projectName, name, survey_response) {
 }
 
 async function getPMContactInfo(proj, userdataCol) {
-  let pm = await col_users.findOne({sf_names : proj.project_manager});
+  let pm = await userdataCol.findOne({sf_names : proj.project_manager});
   if (! pm) {
     console.log(`We don't have data on the PM (${proj.project_manager}) for ${proj.name}`)
     return null;
@@ -25,7 +25,7 @@ async function getPMContactInfo(proj, userdataCol) {
 }
 
 async function getOwnerContactInfo(proj, userdataCol) {
-  let owner = await col_users.findOne({sf_names : proj.owner});
+  let owner = await userdataCol.findOne({sf_names : proj.owner});
   if (! owner) {
     console.log(`We don't have data on the owner (${proj.owner}) for ${proj.name}`)
     return null;
