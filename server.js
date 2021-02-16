@@ -35,8 +35,13 @@ loginApiKey(realmApiKey).then(user => {
       .db('shf')
       .collection('psproject');
 
+    const userdataCol = user
+      .mongoClient('mongodb-atlas')
+      .db('shf')
+      .collection('userdata');
+
 	// this is where we'll handle our various routes from
-	const routes = require('./routes/routes.js')(app, dbCollection, user);
+	const routes = require('./routes/routes.js')(app, dbCollection, userdataCol, user);
 
 	// finally, launch our server on port 8080.
 	const server = app.listen(8080, () => {

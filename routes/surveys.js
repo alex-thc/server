@@ -14,16 +14,37 @@ function notifyHTMLBody(projectName, name, survey_response) {
     </div>`;
 }
 
-function getPMContactInfo(project_doc, user) {
-  //TODO
-  return {name:"Bob Marley", email: "alex@mongodb.com"}
+function getPMContactInfo(proj, userdataCol) {
+  let pm = await col_users.findOne({sf_names : proj.project_manager});
+  if (! pm) {
+    console.log(`We don't have data on the PM (${proj.project_manager}) for ${proj.name}`)
+    return null;
+  }
+
+  return {name:proj.project_manager, email: pm._id}
 }
 
-async function notifyPM(project_doc, survey_response, user) {
-  const pm_contact_info = getPMContactInfo(project_doc, user);
+function getOwnerContactInfo(proj, userdataCol) {
+  let owner = await col_users.findOne({sf_names : proj.owner});
+  if (! owner) {
+    console.log(`We don't have data on the owner (${proj.owner}) for ${proj.name}`)
+    return null;
+  }
+
+  return {name:proj.owner, email: owner._id}
+}
+
+async function notifyPM(project_doc, survey_response, user, userdataCol) {
+  const pm_contact_info = getPMContactInfo(project_doc, userdataCol);
+  const owner_contact_info = getOwnerContactInfo(project_doc, userdataCol);
+
+  if (!pm_contact_info) {
+    console.log("Ignoring");
+    return;
+  }
 
   const emailParams = {
-    origEmail: "alex@mongodb.com",
+    origEmail: owner_contact_info ? owner_contact_info.email : "alex@mongodb.com",
     toEmail: pm_contact_info.email, 
     subject: "Survey response received for " + project_doc.name,
     html: notifyHTMLBody(project_doc.name, pm_contact_info.name, survey_response)
@@ -70,7 +91,7 @@ function processQuestionsData(doc) {
     return doc
   }
 
-const surveyRoutes = (app, dbCollection, user) => {
+const surveyRoutes = (app, dbCollection, userdataCol, user) => {
 
   // CREATE
   app.post('/surveys', (req, res) => {
@@ -85,7 +106,7 @@ const surveyRoutes = (app, dbCollection, user) => {
         //qualtrics sends scores as strings
         processQuestionsData(req.body);
         dbCollection.updateOne({"name":req.body.projectId},{"$push":{"survey_responses":req.body}});
-        dbCollection.findOne({"name":req.body.projectId}).then((doc) => notifyPM(doc, req.body, user))
+        dbCollection.findOne({"name":req.body.projectId}).then((doc) => notifyPM(doc, req.body, user, userdataCol))
         res.send("Survey object created") 
       }
     } else {
