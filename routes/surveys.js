@@ -1,13 +1,21 @@
 var CONFIG = require('../config-prod.json');
 
+function generateQuestionsResponse
+
 function notifyHTMLBody(projectName, name, survey_response) {
   return `
       <div>
       Hi ${name},
       <br/><br/>
       We just received a survey response for the following PS Project: ${projectName}! See below for the details.
-      <br/>
-      ${JSON.stringify(survey_response)}
+      <br/><br/>
+      Survey: ${survey_response.survey} <br/>
+      Name: ${survey_response.name} (${survey_response.email}) <br/>
+      Questions: <br/>
+      <ul>
+        ${survey_response.questions.map(r => `<li>${r.text}: ${r.score}</li>`).join(" ")}
+      </ul>
+      ${survey_response.additional_feedback ? "Additional feedback: " + survey_response.additional_feedback : ""}
       <br/> <br/>
       MongoDB Professional Services
       <br/>
