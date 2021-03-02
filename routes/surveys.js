@@ -1,7 +1,5 @@
 var CONFIG = require('../config-prod.json');
 
-function generateQuestionsResponse
-
 function notifyHTMLBody(projectName, name, survey_response) {
   return `
       <div>
